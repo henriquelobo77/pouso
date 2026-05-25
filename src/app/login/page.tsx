@@ -23,7 +23,7 @@ export default function LoginPage() {
             Bem-vindo de volta.
           </h1>
           <p className="text-fg-muted text-[15px] leading-relaxed">
-            Mande um link mágico pro seu email — sem senha pra lembrar.
+            Entra com email e senha.
           </p>
         </div>
 
