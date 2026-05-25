@@ -26,22 +26,31 @@ export function LoginForm() {
 
     setState({ kind: "sending" });
 
-    const supabase = createClient();
-    const origin = window.location.origin;
+    try {
+      const supabase = createClient();
+      const origin = window.location.origin;
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
-      options: {
-        emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
-      },
-    });
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        options: {
+          emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
+        },
+      });
 
-    if (error) {
-      setState({ kind: "error", message: error.message });
-      return;
+      if (error) {
+        setState({ kind: "error", message: error.message });
+        return;
+      }
+
+      setState({ kind: "sent", email: email.trim() });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("[pouso] signInWithOtp threw:", err);
+      setState({
+        kind: "error",
+        message: `Falha inesperada: ${msg}. Tenta em janela anônima.`,
+      });
     }
-
-    setState({ kind: "sent", email: email.trim() });
   }
 
   if (state.kind === "sent") {
