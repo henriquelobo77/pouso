@@ -1,26 +1,241 @@
 @import "tailwindcss";
 
+/* ───────────────────────────────────────────────────────────────
+   pouso. — tokens
+   Sempre consultar BRAND.md antes de alterar valores.
+   ─────────────────────────────────────────────────────────────── */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Light mode (padrão) */
+  --bg: #f4f1ea;
+  --surface: #fbf9f4;
+  --surface-2: #edeae1;
+  --fg: #2c2926;
+  --fg-muted: #6b655c;
+  --muted: #9b958d;
+  --border: #e6e1d6;
+  --border-strong: #d4cec0;
+
+  --primary: #7a8f75;
+  --primary-hover: #6b8067;
+  --primary-soft: #e4eae0;
+
+  --accent: #c09872;
+  --accent-soft: #f0e4d2;
+
+  --success: #6b8e5a;
+  --warning: #c9853d;
+  --danger: #a85a4f;
+
+  /* Radii — generosos, sensação de papel */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Sombras — quase imperceptíveis, sem glassmorphism */
+  --shadow-soft: 0 1px 0 rgba(44, 41, 38, 0.02), 0 1px 2px rgba(44, 41, 38, 0.04);
+  --shadow-lift: 0 4px 24px rgba(44, 41, 38, 0.06);
+
+  /* Transições */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
 }
 
+/* Dark mode (Fase 2 — preparado, não acionado) */
+.dark,
+[data-theme="dark"] {
+  --bg: #1c1b18;
+  --surface: #26241f;
+  --surface-2: #2f2c26;
+  --fg: #e8e3d7;
+  --fg-muted: #a8a096;
+  --muted: #6b655c;
+  --border: #3a352c;
+  --border-strong: #4a4438;
+
+  --primary: #9db098;
+  --primary-hover: #b0c0aa;
+  --primary-soft: #2f3a2c;
+
+  --accent: #d4ac85;
+  --accent-soft: #3a2e1f;
+
+  --shadow-soft: 0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-lift: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ───────────────────────────────────────────────────────────────
+   Tailwind 4 — mapear tokens para utilities
+   ─────────────────────────────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ───────────────────────────────────────────────────────────────
+   Base styles — sensação de papel
+   ─────────────────────────────────────────────────────────────── */
+* {
+  border-color: var(--border);
+}
+
+html {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-feature-settings: "ss01", "cv11";
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  font-feature-settings: "ss01", "ss02", "ss03";
+}
+
+h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+
+h2 {
+  font-size: clamp(1.875rem, 3.5vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+h4 {
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--fg);
+}
+
+p {
+  color: var(--fg);
+}
+
+small {
+  font-size: 0.875rem;
+  color: var(--fg-muted);
+}
+
+/* Caption utility — letter-spaced uppercase */
+.caption {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+/* Números financeiros — sempre tabular */
+.tabular {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Texto longo (diário, notas) — Fraunces no corpo */
+.prose-pouso {
+  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-weight: 400;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: var(--fg);
+}
+
+/* Seleção — verde-musgo */
+::selection {
+  background: var(--primary-soft);
+  color: var(--fg);
+}
+
+/* Foco — anel verde-musgo */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Scrollbar discreta */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   Animações — entrada suave, sem bounces
+   ─────────────────────────────────────────────────────────────── */
+@keyframes pouso-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pouso-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-pouso-fade-up {
+  animation: pouso-fade-up 400ms var(--ease) both;
+}
+
+.animate-pouso-fade {
+  animation: pouso-fade 300ms var(--ease) both;
+}
+
+/* Decoração para o ponto da marca */
+.pouso-dot {
+  color: var(--primary);
 }
