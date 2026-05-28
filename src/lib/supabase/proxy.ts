@@ -31,11 +31,11 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
-  const isAuthRoute = pathname.startsWith("/login") || pathname.startsWith("/auth");
-  const isAppRoute = pathname.startsWith("/app");
+  const requiresAuth =
+    pathname.startsWith("/app") || pathname.startsWith("/onboarding");
 
-  // Não-autenticado tentando entrar em /app/* → redireciona pra /login
-  if (!user && isAppRoute) {
+  // Não-autenticado tentando entrar em rota protegida → redireciona pra /login
+  if (!user && requiresAuth) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirectTo", pathname);

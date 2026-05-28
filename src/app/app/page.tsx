@@ -1,4 +1,6 @@
+import Link from "next/link";
 import {
+  ArrowRight,
   BookOpen,
   Feather,
   Inbox,
@@ -9,6 +11,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 
 function saudacao(date: Date) {
   const h = date.getHours();
@@ -58,21 +61,27 @@ export default async function DashboardPage() {
       {/* ─── Status de onboarding ─── */}
       {!profile?.onboarding_completed && (
         <Card className="mb-8 border-primary/30 bg-primary-soft/40">
-          <CardContent className="flex items-start gap-4 py-5">
+          <CardContent className="flex items-start gap-5 py-6">
             <Sparkles
-              size={20}
+              size={22}
               strokeWidth={1.5}
               className="text-primary mt-0.5 shrink-0"
             />
             <div className="flex-1">
-              <p className="font-display text-lg leading-snug">
+              <p className="font-display text-xl leading-snug">
                 Falta ajustar o seu pouso.
               </p>
-              <p className="text-fg-muted text-sm leading-relaxed mt-1">
-                Quando o módulo de onboarding ficar pronto na Fase 1, você vai
-                responder algumas perguntas pra eu entender sua rotina, contas
-                e contextos. Por enquanto, só explore.
+              <p className="text-fg-muted text-[15px] leading-relaxed mt-1.5 max-w-xl">
+                Me conta sua rotina, contas, custos fixos e hábitos em texto
+                livre. A IA estrutura tudo pra você — uns 8 minutos.
               </p>
+              <Link
+                href="/onboarding"
+                className={buttonVariants({ variant: "primary", size: "md" }) + " mt-5 w-fit"}
+              >
+                Começar agora
+                <ArrowRight size={16} strokeWidth={1.5} />
+              </Link>
             </div>
           </CardContent>
         </Card>
