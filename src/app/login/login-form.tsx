@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { signinAction, signupAction } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,73 +22,44 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [state, setState] = useState<State>({ kind: "idle" });
+  const [pending, startTransition] = useTransition();
 
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") ?? "/app";
 
-  const isLoading = state.kind === "loading";
+  const isLoading = state.kind === "loading" || pending;
   const passwordTooShort = password.length > 0 && password.length < 8;
   const canSubmit =
     email.trim().length > 0 && password.length >= 8 && !isLoading;
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit) return;
 
     setState({ kind: "loading" });
 
-    try {
-      const supabase = createClient();
-      const trimmedEmail = email.trim();
+    startTransition(async () => {
+      try {
+        const result =
+          mode === "signin"
+            ? await signinAction(email, password)
+            : await signupAction(email, password);
 
-      if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: trimmedEmail,
-          password,
-        });
-        if (error) {
-          setState({
-            kind: "error",
-            message: friendlyError(error.message, "signin"),
-          });
+        if (!result.ok) {
+          setState({ kind: "error", message: result.error });
           return;
         }
-      } else {
-        const { data, error } = await supabase.auth.signUp({
-          email: trimmedEmail,
-          password,
-          options: {
-            data: {
-              display_name: trimmedEmail.split("@")[0],
-            },
-          },
-        });
-        if (error) {
-          setState({
-            kind: "error",
-            message: friendlyError(error.message, "signup"),
-          });
-          return;
-        }
-        // Quando "Confirm email" está desativado no Supabase, signUp já loga.
-        // Quando está ativado, identities vem vazio se o email já existir.
-        if (data.user && data.user.identities && data.user.identities.length === 0) {
-          setState({
-            kind: "error",
-            message: "Esse email já tem conta. Entra em vez de criar.",
-          });
-          return;
-        }
+
+        // Sessão setada via cookies pelo server. Refresh força revalidate.
+        router.refresh();
+        router.push(redirectTo);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error("[pouso] auth action threw:", err);
+        setState({ kind: "error", message: `Falha inesperada: ${msg}` });
       }
-
-      router.push(redirectTo);
-      router.refresh();
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.error("[pouso] auth threw:", err);
-      setState({ kind: "error", message: `Falha inesperada: ${msg}` });
-    }
+    });
   }
 
   function toggleMode() {
@@ -193,26 +164,4 @@ export function LoginForm() {
       </button>
     </form>
   );
-}
-
-function friendlyError(message: string, mode: Mode): string {
-  const m = message.toLowerCase();
-  if (m.includes("invalid login credentials") || m.includes("invalid credentials")) {
-    return "Email ou senha incorretos.";
-  }
-  if (m.includes("email not confirmed")) {
-    return "Esse email ainda não foi confirmado. Cheque sua caixa.";
-  }
-  if (m.includes("user already registered")) {
-    return "Esse email já tem conta. Entra em vez de criar.";
-  }
-  if (m.includes("password should be at least")) {
-    return "A senha precisa ter pelo menos 8 caracteres.";
-  }
-  if (m.includes("rate limit") || m.includes("too many")) {
-    return "Muitas tentativas. Aguarda 1 minuto e tenta de novo.";
-  }
-  return mode === "signin"
-    ? `Não consegui entrar: ${message}`
-    : `Não consegui criar a conta: ${message}`;
 }
